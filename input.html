@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remote Control Input</title>
+
+    <style>
+        #screen-container {
+            background: red;
+            padding: 1px;
+            display: inline-block;
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Type - typewrite()</h1>
+    <form action="/type" method="POST">
+        <input name="totype" type="text">
+        <input type="submit">
+    </form>
+
+    <h1>Move Mouse - moveTo()</h1>
+    <form action="/movemouse" method="POST">
+        <label>X</label> <input name="x" type="number">
+        <label>Y</label> <input name="y" type="number">
+        <input type="submit">
+    </form>
+
+    <br> <br>
+
+    <button onclick="m_click(0)">Left Click</button>
+    <button onclick="m_click(1)">Scroll Wheel Button Click</button>
+    <button onclick="m_click(2)">Right Click</button>
+
+    <h1>Screen</h1>
+    <div id="screen-coordinate-viewer"></div>
+    <div id="screen-container">
+        <img id="screen-img" onclick="updateScreenCoordinates()" onmousemove="updateScreenCoordinates()" src="./screen.png" ismap>
+    </div>
+
+    <script>
+        console.log("JS loaded");
+
+        function m_click(btn) {
+            console.log("Clicking...")
+
+            // btn: int
+            // 0 - left mouse button
+            // 1 - middle mouse button
+            // 2 - right mouse button
+
+            var fetchURL = "/click";
+
+            if (btn == 0) fetchURL += "left";
+            else if (btn == 1) fetchURL += "middle";
+            else if (btn == 2) fetchURL += "right";
+
+            console.log(fetchURL);
+            fetch(fetchURL, {
+                method: "POST"
+            })
+        }
+
+        var coordinateViewer = document.getElementById("screen-coordinate-viewer");
+        var screenImg = document.getElementById("screen-img");
+        function updateScreenCoordinates(ev) {
+            var xCoordinate = event.offsetX;
+            var yCoordinate = event.offsetY;
+
+            coordinateViewer.innerText = `x=${xCoordinate}; y=${yCoordinate}`;
+        }
+
+        // add a URL param when requesting for image so that it isn't possible to cache
+        var i = 0;
+        function refreshScreen() {
+            fetch("/screen.png");
+            screenImg.setAttribute("href", `./temp.png`)
+            screenImg.setAttribute("href", `./screen.png?i=${i}`)
+            i++;
+
+            setTimeout(refreshScreen, 2000)
+        }
+        
+        refreshScreen();
+    </script>
+</body>
+</html>
