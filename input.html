@@ -92,19 +92,6 @@
 
             coordinateViewer.innerText = `x=${xCoordinate}; y=${yCoordinate}`;
         }
-
-        // add a URL param when requesting for image so that it isn't possible to cache
-        var i = 0;
-        function refreshScreen() {
-            fetch("/screen.png");
-            screenImg.setAttribute("href", `./temp.png`)
-            screenImg.setAttribute("href", `./screen.png?i=${i}`)
-            i++;
-
-            setTimeout(refreshScreen, 2000)
-        }
-        
-        refreshScreen();
     </script>
 </body>
 </html>
