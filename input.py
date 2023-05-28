@@ -63,8 +63,8 @@ class MyServer(BaseHTTPRequestHandler):
 
             pag.typewrite(toWrite)
 
-            self.configureHeaders(isHTML=False)
-            self.addResponseData("Type request processed")
+            self.configureHeaders()
+            self.addResponseData("<script>window.location.href = document.referrer;</script>")
 
         if (self.path.startswith("/movemouse")):
             content_length = int(self.headers['Content-Length'])
@@ -79,8 +79,8 @@ class MyServer(BaseHTTPRequestHandler):
 
             pag.moveTo(int(x), int(y), 0.2)
 
-            self.configureHeaders(isHTML=False)
-            self.addResponseData("Mouse move request processed")
+            self.configureHeaders()
+            self.addResponseData("<script>window.location.href = document.referrer;</script>")
 
         if self.path.startswith("/click"):
             print("Click request detected")
@@ -94,8 +94,8 @@ class MyServer(BaseHTTPRequestHandler):
             elif "middle" in self.path:
                 pag.middleClick()
 
-            self.configureHeaders(isHTML=False)
-            self.addResponseData("POST request received!")
+            self.configureHeaders()
+            self.addResponseData("<script>window.location.href = document.referrer;</script>")
 
         if self.path.startswith("/press"):
             content_length = int(self.headers['Content-Length'])
@@ -106,6 +106,9 @@ class MyServer(BaseHTTPRequestHandler):
             toPress = params.get(bytes("topress", "utf-8"))[0].decode()
 
             pag.press(toPress) 
+
+            self.configureHeaders()
+            self.addResponseData("<script>window.location.href = document.referrer;</script>")
 
         if self.path.startswith("/hotkey"):
             ...
