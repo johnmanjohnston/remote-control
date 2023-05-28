@@ -97,6 +97,22 @@ class MyServer(BaseHTTPRequestHandler):
             self.configureHeaders(isHTML=False)
             self.addResponseData("POST request received!")
 
+        if self.path.startswith("/press"):
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+
+            params = urllib.parse.parse_qs(post_data)
+
+            toPress = params.get(bytes("topress", "utf-8"))[0].decode()
+
+            pag.press(toPress) 
+
+        if self.path.startswith("/hotkey"):
+            ...
+            # pyautogui.hotkey()
+            
+
+
 
 if __name__ == "__main__":        
     webServer = HTTPServer((hostName, serverPort), MyServer)
