@@ -111,8 +111,17 @@ class MyServer(BaseHTTPRequestHandler):
             self.addResponseData("<script>window.location.href = document.referrer;</script>")
 
         if self.path.startswith("/hotkey"):
-            ...
-            # pyautogui.hotkey()
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+
+            params = urllib.parse.parse_qs(post_data)
+
+            tohotkey = params.get(bytes("tohotkey", "utf-8"))[0].decode()
+
+            pag.hotkey(tohotkey.split(","))
+
+            self.configureHeaders()
+            self.addResponseData("<script>window.location.href = document.referrer;</script>")
             
 
 
