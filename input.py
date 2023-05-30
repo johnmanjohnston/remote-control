@@ -1,6 +1,7 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import urllib.parse
 import pyautogui as pag
+import cv2 as cv
 
 hostName = "localhost"
 serverPort = 3000
@@ -31,6 +32,27 @@ class MyServer(BaseHTTPRequestHandler):
             self.send_header("Content-Type", "image/png")
             self.end_headers()
             with open("./screen.png", "rb") as f:
+                self.wfile.write(f.read())
+                f.close()
+
+            return
+        
+        if self.path.startswith("/webcam.png"):
+            self.send_response(200)
+            self.send_header("Content-Type", "image/png")
+            self.end_headers()
+    
+            # Screenshot webcam and save as ./webcam.png
+            cam = cv.VideoCapture(0)
+            frame, img = cam.read()
+
+            if frame:   
+                cv.imwrite("webcam.png", img)
+
+            cam.release()
+
+            # Read and deliver
+            with open("./webcam.png", "rb") as f:
                 self.wfile.write(f.read())
                 f.close()
 
