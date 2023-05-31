@@ -27,6 +27,12 @@ class MyServer(BaseHTTPRequestHandler):
         self.wfile.write(bytes(data, "utf-8"))
 
     def do_GET(self):
+        print(f"GET request from {self.client_address}; Path: {self.path}")
+
+        if self.path.startswith("/killserver"):
+            webServer.server_close()
+            print(f"Stopping web server from {self.client_address}...")
+
         if (self.path.startswith("/screen.png")):
             self.send_response(200)
             self.send_header("Content-Type", "image/png")
@@ -60,8 +66,6 @@ class MyServer(BaseHTTPRequestHandler):
 
         self.configureHeaders()
         self.updateScreenshot()
-
-        print("Request:", self.path)
 
         if (self.path == "/"):
             with open("./input.html", "r") as f:
