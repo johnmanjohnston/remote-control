@@ -88,8 +88,8 @@ class MyServer(BaseHTTPRequestHandler):
 
         self.updateScreenshot()
         
-        contentLengt = int(self.headers["Content-Length"])
-        postData = self.rfile.read(contentLengt)
+        contentLength = int(self.headers["Content-Length"])
+        postData = self.rfile.read(contentLength)
 
         if (self.path.startswith("/type")):
             params = urllib.parse.parse_qs(postData)
