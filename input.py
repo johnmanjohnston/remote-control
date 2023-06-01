@@ -6,7 +6,8 @@ import cv2 as cv
 hostName = "localhost"
 serverPort = 3000
 
-pag.FAILSAFE = False
+def init():
+    pag.FAILSAFE = False
 
 class MyServer(BaseHTTPRequestHandler):
     def updateScreenshot(self):
@@ -73,15 +74,15 @@ class MyServer(BaseHTTPRequestHandler):
                 f.close()
 
     def do_POST(self):
-        print("Post request recieved")
+        print(f"Post request recieved from {self.client_address}")
         print(self.path)
 
         self.updateScreenshot()
         
-        if (self.path.startswith("/type")):
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
+        content_length = int(self.headers["Content-Length"])
+        post_data = self.rfile.read(content_length)
 
+        if (self.path.startswith("/type")):
             params = urllib.parse.parse_qs(post_data)
 
             toWrite = params.get(bytes("totype", "utf-8"))[0].decode()
@@ -93,9 +94,6 @@ class MyServer(BaseHTTPRequestHandler):
             self.addResponseData("<script>window.location.href = document.referrer;</script>")
 
         if (self.path.startswith("/movemouse")):
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
-
             params = urllib.parse.parse_qs(post_data)
 
             x = params.get(bytes("x", "utf-8"))[0].decode()
@@ -149,12 +147,9 @@ class MyServer(BaseHTTPRequestHandler):
             self.configureHeaders()
             self.addResponseData("<script>window.location.href = document.referrer;</script>")
             
-
-
-
-if __name__ == "__main__":        
+def main(): 
     webServer = HTTPServer((hostName, serverPort), MyServer)
-    print("Server started http://%s:%s" % (hostName, serverPort))
+    print(f"Server started on {hostName, serverPort}")
 
     try:
         webServer.serve_forever()
@@ -163,3 +158,6 @@ if __name__ == "__main__":
 
     webServer.server_close()
     print("Server stopped.")
+
+if __name__ == "__main__":       
+    main()
