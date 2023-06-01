@@ -5,14 +5,21 @@ import cv2 as cv
 
 hostName = "localhost"
 serverPort = 3000
+webServer = None # We'll assign later.
 
 def init():
     pag.FAILSAFE = False
+
 
 class MyServer(BaseHTTPRequestHandler):
     def updateScreenshot(self):
         screenshot = pag.screenshot()
         screenshot.save("./screen.png")
+
+
+    def redirectToReferer(self): 
+        self.addResponseData("<script>window.location.href = document.referrer;</script>")
+
 
     def configureHeaders(self, isHTML=True):
         self.send_response(200)
@@ -24,8 +31,10 @@ class MyServer(BaseHTTPRequestHandler):
 
         self.end_headers()
 
+
     def addResponseData(self, data):
         self.wfile.write(bytes(data, "utf-8"))
+
 
     def do_GET(self):
         print(f"GET request from {self.client_address}; Path: {self.path}")
@@ -79,11 +88,11 @@ class MyServer(BaseHTTPRequestHandler):
 
         self.updateScreenshot()
         
-        content_length = int(self.headers["Content-Length"])
-        post_data = self.rfile.read(content_length)
+        contentLengt = int(self.headers["Content-Length"])
+        postData = self.rfile.read(contentLengt)
 
         if (self.path.startswith("/type")):
-            params = urllib.parse.parse_qs(post_data)
+            params = urllib.parse.parse_qs(postData)
 
             toWrite = params.get(bytes("totype", "utf-8"))[0].decode()
             print(toWrite)
@@ -91,10 +100,10 @@ class MyServer(BaseHTTPRequestHandler):
             pag.typewrite(toWrite)
 
             self.configureHeaders()
-            self.addResponseData("<script>window.location.href = document.referrer;</script>")
+            self.redirectToReferer()
 
         if (self.path.startswith("/movemouse")):
-            params = urllib.parse.parse_qs(post_data)
+            params = urllib.parse.parse_qs(postData)
 
             x = params.get(bytes("x", "utf-8"))[0].decode()
             y = params.get(bytes("y", "utf-8"))[0].decode()
@@ -104,7 +113,7 @@ class MyServer(BaseHTTPRequestHandler):
             pag.moveTo(int(x), int(y), 0.2)
 
             self.configureHeaders()
-            self.addResponseData("<script>window.location.href = document.referrer;</script>")
+            self.redirectToReferer()
 
         if self.path.startswith("/click"):
             print("Click request detected")
@@ -119,34 +128,29 @@ class MyServer(BaseHTTPRequestHandler):
                 pag.middleClick()
 
             self.configureHeaders()
-            self.addResponseData("<script>window.location.href = document.referrer;</script>")
+            self.redirectToReferer()
 
         if self.path.startswith("/press"):
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
-
-            params = urllib.parse.parse_qs(post_data)
+            params = urllib.parse.parse_qs(postData)
 
             toPress = params.get(bytes("topress", "utf-8"))[0].decode()
 
             pag.press(toPress) 
 
             self.configureHeaders()
-            self.addResponseData("<script>window.location.href = document.referrer;</script>")
+            self.redirectToReferer()
 
         if self.path.startswith("/hotkey"):
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
-
-            params = urllib.parse.parse_qs(post_data)
+            params = urllib.parse.parse_qs(postData)
 
             tohotkey = params.get(bytes("tohotkey", "utf-8"))[0].decode()
 
             pag.hotkey(tohotkey.split(","))
 
             self.configureHeaders()
-            self.addResponseData("<script>window.location.href = document.referrer;</script>")
-            
+            self.redirectToReferer()
+
+
 def main(): 
     webServer = HTTPServer((hostName, serverPort), MyServer)
     print(f"Server started on {hostName, serverPort}")
@@ -158,6 +162,7 @@ def main():
 
     webServer.server_close()
     print("Server stopped.")
+
 
 if __name__ == "__main__":       
     main()
