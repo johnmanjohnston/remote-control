@@ -1,7 +1,9 @@
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler
+from http.server import HTTPServer
 import urllib.parse
 import pyautogui as pag
 import cv2 as cv
+import sys
 
 hostName = "localhost"
 serverPort = 3000
@@ -21,8 +23,8 @@ class MyServer(BaseHTTPRequestHandler):
         self.addResponseData("<script>window.location.href = document.referrer;</script>")
 
 
-    def configureHeaders(self, isHTML=True):
-        self.send_response(200)
+    def configureHeaders(self, isHTML=True, statusCode=200):
+        self.send_response(statusCode)
 
         if isHTML:
             self.send_header("Content-Type", "text/html")
@@ -40,8 +42,10 @@ class MyServer(BaseHTTPRequestHandler):
         print(f"GET request from {self.client_address}; Path: {self.path}")
 
         if self.path.startswith("/killserver"):
-            webServer.server_close()
-            print(f"Stopping web server from {self.client_address}...")
+            self.configureHeaders()
+            self.addResponseData("<html><body><h1>Stopping server</h1></body></html>")
+            print(f"Stopping web server from {self.client_address}")
+            raise KeyboardInterrupt
 
         if (self.path.startswith("/screen.png")):
             self.send_response(200)
@@ -82,10 +86,13 @@ class MyServer(BaseHTTPRequestHandler):
                 self.addResponseData(f.read())
                 f.close()
 
-    def do_POST(self):
-        print(f"Post request recieved from {self.client_address}")
-        print(self.path)
+        else:
+            self.configureHeaders(statusCode=404)
+            self.addResponseData("<html><body><h1>Page Not Found</h1></body></html>")
 
+        print()
+
+    def do_POST(self):
         self.updateScreenshot()
         
         contentLength = int(self.headers["Content-Length"])
@@ -108,16 +115,12 @@ class MyServer(BaseHTTPRequestHandler):
             x = params.get(bytes("x", "utf-8"))[0].decode()
             y = params.get(bytes("y", "utf-8"))[0].decode()
 
-            print(x, y)
-
             pag.moveTo(int(x), int(y), 0.2)
 
             self.configureHeaders()
             self.redirectToReferer()
 
         if self.path.startswith("/click"):
-            print("Click request detected")
-
             if "left" in self.path:
                 pag.leftClick()
 
@@ -150,10 +153,11 @@ class MyServer(BaseHTTPRequestHandler):
             self.configureHeaders()
             self.redirectToReferer()
 
+        print()
 
 def main(): 
     webServer = HTTPServer((hostName, serverPort), MyServer)
-    print(f"Server started on {hostName, serverPort}")
+    print(f"Server started on http://{hostName}:{serverPort}")
 
     try:
         webServer.serve_forever()
@@ -162,6 +166,7 @@ def main():
 
     webServer.server_close()
     print("Server stopped.")
+    sys.exit(0)
 
 
 if __name__ == "__main__":       
