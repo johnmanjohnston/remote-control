@@ -17,3 +17,6 @@ $ pip -r install requirements.txt
 
 # Usage
 TODO
+
+To stop the server from running, visit `/killserver`.
+It'll throw a `KeyboardInterrupt` exception which will stop the server from running.
