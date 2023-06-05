@@ -78,10 +78,11 @@
             else if (btn == 1) fetchURL += "middle";
             else if (btn == 2) fetchURL += "right";
 
-            console.log(fetchURL);
             fetch(fetchURL, {
                 method: "POST"
-            })
+            });
+
+            window.location.reload();
         }
 
         var coordinateViewer = document.getElementById("screen-coordinate-viewer");
