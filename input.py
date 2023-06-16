@@ -10,7 +10,7 @@ serverPort = 3000
 webServer = None # We'll assign later.
 
 def init():
-    pag.FAILSAFE = False
+    pag.FAILSAFE = False # Just set this to true if you need the failsafe 
 
 
 class MyServer(BaseHTTPRequestHandler):
@@ -169,5 +169,6 @@ def main():
     sys.exit(0)
 
 
-if __name__ == "__main__":       
+if __name__ == "__main__":   
+    init()    
     main()
