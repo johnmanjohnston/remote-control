@@ -12,7 +12,7 @@ $ git clone https://github.com/johnmanjohnston/remote-control
 cd into the project files and install the dependancies
 ```bash
 $ cd remote-control
-$ pip -r install requirements.txt
+$ pip install -r requirements.txt
 ```
 
 # Usage
